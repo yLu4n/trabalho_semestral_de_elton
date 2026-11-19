@@ -1,0 +1,2265 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FinAI API",
+    "version": "1.0.0",
+    "description": "MVC. Moedas são strings decimais. Sessão em cookie HttpOnly assinado; 30 min de inatividade/12 h totais. Requer CSRF nas mutações."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "security": [
+    {
+      "sessao": []
+    }
+  ],
+  "paths": {
+    "/api/auth/csrf": {
+      "get": {
+        "summary": "Obter token CSRF",
+        "operationId": "get__auth_csrf",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/auth/cadastro": {
+      "post": {
+        "summary": "Criar conta e enviar verificação",
+        "operationId": "post__auth_cadastro",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mensagem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cadastro"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ],
+        "security": []
+      }
+    },
+    "/api/auth/verificar": {
+      "post": {
+        "summary": "Verificar e-mail",
+        "operationId": "post__auth_verificar",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mensagem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "token"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ],
+        "security": []
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Autenticar com e-mail e senha",
+        "operationId": "post__auth_login",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mensagem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ],
+        "security": []
+      }
+    },
+    "/api/auth/eu": {
+      "get": {
+        "summary": "Consultar perfil autenticado",
+        "operationId": "get__auth_eu",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "Revogar sessão",
+        "operationId": "post__auth_logout",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/categorias": {
+      "get": {
+        "summary": "Listar categorias disponíveis",
+        "operationId": "get__categorias",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar categoria pessoal",
+        "operationId": "post__categorias",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/categorias/{id}": {
+      "put": {
+        "summary": "Editar ou desativar categoria pessoal",
+        "operationId": "put__categorias_id",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/lancamentos": {
+      "get": {
+        "summary": "Filtrar e paginar lançamentos ativos",
+        "operationId": "get__lancamentos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "inicio",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "fim",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "categoriaId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tipo",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "texto",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pagina",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tamanho",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Cadastrar lançamento manual",
+        "operationId": "post__lancamentos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lancamento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LancamentoEntrada"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/lancamentos/{id}": {
+      "put": {
+        "summary": "Editar lançamento",
+        "operationId": "put__lancamentos_id",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lancamento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LancamentoEntrada"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Excluir logicamente por 90 dias",
+        "operationId": "delete__lancamentos_id",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/lancamentos/{id}/restaurar": {
+      "post": {
+        "summary": "Restaurar lançamento excluído",
+        "operationId": "post__lancamentos_id_restaurar",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/lixeira": {
+      "get": {
+        "summary": "Listar lançamentos excluídos do titular",
+        "operationId": "get__lixeira",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      }
+    },
+    "/api/painel": {
+      "get": {
+        "summary": "Consolidar totais, distribuição, série e projeção",
+        "operationId": "get__painel",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "inicio",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "fim",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/metas": {
+      "get": {
+        "summary": "Consultar metas e consumo mensal",
+        "operationId": "get__metas",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "mes",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Criar ou atualizar meta",
+        "operationId": "post__metas",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MetaEntrada"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/metas/{id}": {
+      "delete": {
+        "summary": "Remover meta",
+        "operationId": "delete__metas_id",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/ia/interpretacoes": {
+      "post": {
+        "summary": "Interpretar frase sem persistir lançamento",
+        "operationId": "post__ia_interpretacoes",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sugestao"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextoEntrada"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/ia/sugestoes/{id}/confirmar": {
+      "post": {
+        "summary": "Confirmar sugestão uma única vez",
+        "operationId": "post__ia_sugestoes_id_confirmar",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lancamento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Confirmacao"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/ia/sugestoes/{id}": {
+      "delete": {
+        "summary": "Descartar sugestão",
+        "operationId": "delete__ia_sugestoes_id",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/ia/diagnosticos": {
+      "post": {
+        "summary": "Gerar diagnóstico com agregados e aliases",
+        "operationId": "post__ia_diagnosticos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "mes",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/exportacao": {
+      "get": {
+        "summary": "Baixar extrato completo em CSV UTF-8",
+        "operationId": "get__exportacao",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      }
+    },
+    "/api/privacidade/exclusao": {
+      "post": {
+        "summary": "Reautenticar, revogar sessões e solicitar eliminação",
+        "operationId": "post__privacidade_exclusao",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Senha"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/privacidade/solicitacoes": {
+      "get": {
+        "summary": "Acompanhar solicitações do titular",
+        "operationId": "get__privacidade_solicitacoes",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      },
+      "post": {
+        "summary": "Registrar solicitação ao DPO",
+        "operationId": "post__privacidade_solicitacoes",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "enum": [
+                      "ACESSO",
+                      "CORRECAO",
+                      "INFORMACOES"
+                    ]
+                  }
+                },
+                "required": [
+                  "tipo"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/admin/metricas": {
+      "get": {
+        "summary": "Operação restrita ao papel ADMIN",
+        "operationId": "get__admin_metricas",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      }
+    },
+    "/api/admin/contas": {
+      "get": {
+        "summary": "Operação restrita ao papel ADMIN",
+        "operationId": "get__admin_contas",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      }
+    },
+    "/api/admin/categorias": {
+      "get": {
+        "summary": "Operação restrita ao papel ADMIN",
+        "operationId": "get__admin_categorias",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar categoria padrão (ADMIN)",
+        "operationId": "post__admin_categorias",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/dpo/auditoria": {
+      "get": {
+        "summary": "Operação restrita ao papel DPO",
+        "operationId": "get__dpo_auditoria",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      }
+    },
+    "/api/dpo/solicitacoes": {
+      "get": {
+        "summary": "Operação restrita ao papel DPO",
+        "operationId": "get__dpo_solicitacoes",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        }
+      }
+    },
+    "/api/admin/categorias/{id}": {
+      "put": {
+        "summary": "Editar categoria padrão (ADMIN)",
+        "operationId": "put__admin_categorias_id",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/admin/contas/{id}/bloqueio": {
+      "put": {
+        "summary": "Bloquear ou liberar titular (ADMIN)",
+        "operationId": "put__admin_contas_id_bloqueio",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bloqueado": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "bloqueado"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    },
+    "/api/dpo/solicitacoes/{id}": {
+      "put": {
+        "summary": "Atualizar atendimento (DPO)",
+        "operationId": "put__dpo_solicitacoes_id",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "estado": {
+                    "type": "string",
+                    "enum": [
+                      "ABERTA",
+                      "EM_ATENDIMENTO",
+                      "CONCLUIDA"
+                    ]
+                  }
+                },
+                "required": [
+                  "estado"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessao": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "FINAI_SESSION"
+      }
+    },
+    "schemas": {
+      "Mensagem": {
+        "type": "object",
+        "properties": {
+          "mensagem": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mensagem"
+        ],
+        "additionalProperties": false
+      },
+      "Cadastro": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "senha": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 72
+          },
+          "nascimento": {
+            "type": "string",
+            "format": "date"
+          },
+          "aceitaPrivacidade": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "nome",
+          "email",
+          "senha",
+          "nascimento",
+          "aceitaPrivacidade"
+        ],
+        "additionalProperties": false
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "senha": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "senha"
+        ],
+        "additionalProperties": false
+      },
+      "CategoriaEntrada": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "RECEITA",
+              "DESPESA"
+            ]
+          },
+          "cor": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "ativa": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "nome",
+          "tipo",
+          "cor",
+          "ativa"
+        ],
+        "additionalProperties": false
+      },
+      "LancamentoEntrada": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "RECEITA",
+              "DESPESA"
+            ]
+          },
+          "valor": {
+            "type": "string",
+            "pattern": "^\\d{1,7}(\\.\\d{1,2})?$",
+            "description": "Decimal exato entre 0.01 e 1000000.00. Nunca calculado em ponto flutuante."
+          },
+          "data": {
+            "type": "string",
+            "format": "date"
+          },
+          "categoriaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "descricao": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 280
+          },
+          "estabelecimento": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "formaPagamento": {
+            "type": "string",
+            "maxLength": 60
+          }
+        },
+        "required": [
+          "tipo",
+          "valor",
+          "data",
+          "categoriaId",
+          "descricao"
+        ],
+        "additionalProperties": false
+      },
+      "MetaEntrada": {
+        "type": "object",
+        "properties": {
+          "categoriaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mes": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}$"
+          },
+          "limite": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "categoriaId",
+          "mes",
+          "limite"
+        ],
+        "additionalProperties": false
+      },
+      "Confirmacao": {
+        "type": "object",
+        "properties": {
+          "confirmado": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "lancamento": {
+            "$ref": "#/components/schemas/LancamentoEntrada"
+          }
+        },
+        "required": [
+          "confirmado",
+          "lancamento"
+        ],
+        "additionalProperties": false
+      },
+      "TextoEntrada": {
+        "type": "object",
+        "properties": {
+          "texto": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 280
+          }
+        },
+        "required": [
+          "texto"
+        ],
+        "additionalProperties": false
+      },
+      "Senha": {
+        "type": "object",
+        "properties": {
+          "senha": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "senha"
+        ],
+        "additionalProperties": false
+      },
+      "Sugestao": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "campos": {
+            "type": "object",
+            "description": "Campos com confiança inferior a 0,60 retornam null."
+          },
+          "confianca": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "pendentes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conferirValor": {
+            "type": "boolean"
+          },
+          "manual": {
+            "type": "boolean"
+          },
+          "aviso": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "campos",
+          "confianca",
+          "pendentes",
+          "conferirValor",
+          "manual",
+          "aviso"
+        ],
+        "additionalProperties": false
+      },
+      "Totais": {
+        "type": "object",
+        "properties": {
+          "receitas": {
+            "type": "string"
+          },
+          "despesas": {
+            "type": "string"
+          },
+          "saldo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "receitas",
+          "despesas",
+          "saldo"
+        ],
+        "additionalProperties": false
+      },
+      "Lancamento": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "RECEITA",
+              "DESPESA"
+            ]
+          },
+          "valor": {
+            "type": "string",
+            "pattern": "^\\d{1,7}(\\.\\d{1,2})?$",
+            "description": "Decimal exato entre 0.01 e 1000000.00. Nunca calculado em ponto flutuante."
+          },
+          "data": {
+            "type": "string",
+            "format": "date"
+          },
+          "categoriaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "descricao": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 280
+          },
+          "estabelecimento": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          },
+          "formaPagamento": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 60
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "origem": {
+            "type": "string",
+            "enum": [
+              "IA",
+              "MANUAL"
+            ]
+          },
+          "excluidoEm": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "versao": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tipo",
+          "valor",
+          "data",
+          "categoriaId",
+          "descricao",
+          "estabelecimento",
+          "formaPagamento",
+          "id",
+          "usuarioId",
+          "origem",
+          "excluidoEm",
+          "criadoEm",
+          "versao"
+        ],
+        "additionalProperties": false
+      },
+      "Pagina": {
+        "type": "object",
+        "properties": {
+          "itens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Lancamento"
+            }
+          },
+          "pagina": {
+            "type": "integer"
+          },
+          "paginas": {
+            "type": "integer"
+          },
+          "quantidade": {
+            "type": "integer"
+          },
+          "totais": {
+            "$ref": "#/components/schemas/Totais"
+          }
+        },
+        "required": [
+          "itens",
+          "pagina",
+          "paginas",
+          "quantidade",
+          "totais"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

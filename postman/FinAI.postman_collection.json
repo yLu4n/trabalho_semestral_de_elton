@@ -1,0 +1,186 @@
+{
+  "info": {
+    "name": "FinAI · verificação local",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "mes",
+      "value": "2026-11"
+    },
+    {
+      "key": "email",
+      "value": ""
+    },
+    {
+      "key": "senha",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Obter CSRF",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/csrf"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Resposta válida\", () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"csrf\", pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"{{email}}\", \"senha\": \"{{senha}}\"}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Login confirmado\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Obter CSRF",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/csrf"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Resposta válida\", () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"csrf\", pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Perfil",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/auth/eu"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Resposta válida\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categorias",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/categorias"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Resposta válida\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Painel",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/painel"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Resposta válida\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lançamentos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/lancamentos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Resposta válida\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Metas",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/metas?mes={{mes}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Resposta válida\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

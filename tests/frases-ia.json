@@ -1,0 +1,252 @@
+[
+  {
+    "texto": "Almocei 38 reais no restaurante da faculdade ontem",
+    "tipo": "DESPESA",
+    "valor": "38.00"
+  },
+  {
+    "texto": "Recebi meu salário de 3500 reais hoje",
+    "tipo": "RECEITA",
+    "valor": "3500.00"
+  },
+  {
+    "texto": "Gastei 12,50 no café hoje via Pix",
+    "tipo": "DESPESA",
+    "valor": "12.50"
+  },
+  {
+    "texto": "Paguei 1200 reais de aluguel ontem",
+    "tipo": "DESPESA",
+    "valor": "1200.00"
+  },
+  {
+    "texto": "Ganhei 250 reais com um trabalho extra",
+    "tipo": "RECEITA",
+    "valor": "250.00"
+  },
+  {
+    "texto": "Comprei remédios por 76,90 na farmácia",
+    "tipo": "DESPESA",
+    "valor": "76.90"
+  },
+  {
+    "texto": "Uber para casa custou 23,40 no cartão",
+    "tipo": "DESPESA",
+    "valor": "23.40"
+  },
+  {
+    "texto": "Recebi 150 de reembolso de transporte",
+    "tipo": "RECEITA",
+    "valor": "150.00"
+  },
+  {
+    "texto": "Cinema com os amigos deu 45 reais",
+    "tipo": "DESPESA",
+    "valor": "45.00"
+  },
+  {
+    "texto": "Mensalidade da faculdade: 890 reais",
+    "tipo": "DESPESA",
+    "valor": "890.00"
+  },
+  {
+    "texto": "Paguei R$ 89,90 de internet hoje",
+    "tipo": "DESPESA",
+    "valor": "89.90"
+  },
+  {
+    "texto": "Mercado ontem, 234,56 reais no débito",
+    "tipo": "DESPESA",
+    "valor": "234.56"
+  },
+  {
+    "texto": "Entrou 500 reais de um freela hoje",
+    "tipo": "RECEITA",
+    "valor": "500.00"
+  },
+  {
+    "texto": "Gastei 7 reais no ônibus",
+    "tipo": "DESPESA",
+    "valor": "7.00"
+  },
+  {
+    "texto": "Gasolina 180 reais no crédito",
+    "tipo": "DESPESA",
+    "valor": "180.00"
+  },
+  {
+    "texto": "Consulta médica de 200 reais via Pix",
+    "tipo": "DESPESA",
+    "valor": "200.00"
+  },
+  {
+    "texto": "Recebi 1000 reais pela venda de uma bicicleta",
+    "tipo": "RECEITA",
+    "valor": "1000.00"
+  },
+  {
+    "texto": "Jantei por 62 reais no restaurante",
+    "tipo": "DESPESA",
+    "valor": "62.00"
+  },
+  {
+    "texto": "Café da manhã por 15,75 na padaria",
+    "tipo": "DESPESA",
+    "valor": "15.75"
+  },
+  {
+    "texto": "Comprei um livro de 49,90",
+    "tipo": "DESPESA",
+    "valor": "49.90"
+  },
+  {
+    "texto": "Recebi 75 reais de presente",
+    "tipo": "RECEITA",
+    "valor": "75.00"
+  },
+  {
+    "texto": "Paguei 42,30 de água",
+    "tipo": "DESPESA",
+    "valor": "42.30"
+  },
+  {
+    "texto": "Conta de energia de 167,82 paga hoje",
+    "tipo": "DESPESA",
+    "valor": "167.82"
+  },
+  {
+    "texto": "Fiz uma compra de 0,99 na loja",
+    "tipo": "DESPESA",
+    "valor": "0.99"
+  },
+  {
+    "texto": "Recebi R$ 2.450,00 de salário",
+    "tipo": "RECEITA",
+    "valor": "2450.00"
+  },
+  {
+    "texto": "Assinatura de streaming 29,90",
+    "tipo": "DESPESA",
+    "valor": "29.90"
+  },
+  {
+    "texto": "Paguei estacionamento de 18 reais",
+    "tipo": "DESPESA",
+    "valor": "18.00"
+  },
+  {
+    "texto": "Recebi 300,50 de comissão",
+    "tipo": "RECEITA",
+    "valor": "300.50"
+  },
+  {
+    "texto": "Academia, mensalidade de 99 reais",
+    "tipo": "DESPESA",
+    "valor": "99.00"
+  },
+  {
+    "texto": "Pizza ontem por 68,50 no Pix",
+    "tipo": "DESPESA",
+    "valor": "68.50"
+  },
+  {
+    "texto": "Ganhei 420 reais dando aulas",
+    "tipo": "RECEITA",
+    "valor": "420.00"
+  },
+  {
+    "texto": "Gastei 11 reais no metrô",
+    "tipo": "DESPESA",
+    "valor": "11.00"
+  },
+  {
+    "texto": "Comprei material escolar por 132,40",
+    "tipo": "DESPESA",
+    "valor": "132.40"
+  },
+  {
+    "texto": "Paguei o dentista: 350 reais",
+    "tipo": "DESPESA",
+    "valor": "350.00"
+  },
+  {
+    "texto": "Recebi 80 reais pela venda de um livro",
+    "tipo": "RECEITA",
+    "valor": "80.00"
+  },
+  {
+    "texto": "Ingresso para o show, 150 reais",
+    "tipo": "DESPESA",
+    "valor": "150.00"
+  },
+  {
+    "texto": "Lanche na faculdade foi 9,50",
+    "tipo": "DESPESA",
+    "valor": "9.50"
+  },
+  {
+    "texto": "Paguei 55 reais no corte de cabelo",
+    "tipo": "DESPESA",
+    "valor": "55.00"
+  },
+  {
+    "texto": "Recebi 2000 reais de pagamento do projeto",
+    "tipo": "RECEITA",
+    "valor": "2000.00"
+  },
+  {
+    "texto": "Feira de domingo custou 87,35",
+    "tipo": "DESPESA",
+    "valor": "87.35"
+  },
+  {
+    "texto": "Ração do cachorro foi 129,90",
+    "tipo": "DESPESA",
+    "valor": "129.90"
+  },
+  {
+    "texto": "Recebi 125 reais de restituição",
+    "tipo": "RECEITA",
+    "valor": "125.00"
+  },
+  {
+    "texto": "Paguei 220 reais no curso de inglês",
+    "tipo": "DESPESA",
+    "valor": "220.00"
+  },
+  {
+    "texto": "Bebi um suco de 8,25 na lanchonete",
+    "tipo": "DESPESA",
+    "valor": "8.25"
+  },
+  {
+    "texto": "Conserto da torneira custou 75 reais",
+    "tipo": "DESPESA",
+    "valor": "75.00"
+  },
+  {
+    "texto": "Entrou um bônus de 600 reais",
+    "tipo": "RECEITA",
+    "valor": "600.00"
+  },
+  {
+    "texto": "Fiz um Pix de 19,99 para pagar o almoço",
+    "tipo": "DESPESA",
+    "valor": "19.99"
+  },
+  {
+    "texto": "Recebi 45,70 por um serviço pequeno",
+    "tipo": "RECEITA",
+    "valor": "45.70"
+  },
+  {
+    "texto": "Fui ao teatro e paguei 60 reais",
+    "tipo": "DESPESA",
+    "valor": "60.00"
+  },
+  {
+    "texto": "Comprei almoço por um real",
+    "tipo": "DESPESA",
+    "valor": "1.00"
+  }
+]

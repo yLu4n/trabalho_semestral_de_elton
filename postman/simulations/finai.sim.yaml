@@ -1,0 +1,8 @@
+simulation: finai-llm
+routing: path
+mocks:
+  - name: llm
+    routeKey: llm
+    origin:
+      - api.openai.com
+    path: postman/mocks/llm

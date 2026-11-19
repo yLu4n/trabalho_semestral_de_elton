@@ -1,0 +1,8 @@
+version: 1
+name: llm
+description: Contrato local de Chat Completions; dados fictícios, sem conexão ao provedor.
+interceptRequests: true
+origin: api.openai.com
+scenarios:
+  - name: default
+    path: default.js

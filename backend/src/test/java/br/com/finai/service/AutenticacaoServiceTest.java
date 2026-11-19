@@ -1,0 +1,20 @@
+package br.com.finai.service;
+import br.com.finai.dto.Contratos.*;
+import br.com.finai.model.*;
+import br.com.finai.repository.*;
+import org.junit.jupiter.api.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import java.time.*;
+import java.util.*;
+import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.*;
+class AutenticacaoServiceTest {
+ UsuarioRepository usuarios=mock(UsuarioRepository.class);SessaoRepository sessoes=mock(SessaoRepository.class);VerificacaoEmailRepository verificacoes=mock(VerificacaoEmailRepository.class);EmailService email=mock(EmailService.class);
+ BCryptPasswordEncoder encoder=new BCryptPasswordEncoder(4);AutenticacaoService service=new AutenticacaoService(usuarios,sessoes,verificacoes,encoder,email,"segredo_de_teste_com_mais_de_32_caracteres");Usuario usuario;
+ @BeforeEach void preparar(){usuario=new Usuario();usuario.email="teste@exemplo.com";usuario.senhaHash=encoder.encode("SeguraSenha123!");usuario.emailVerificado=true;when(usuarios.findByEmail(usuario.email)).thenReturn(Optional.of(usuario));when(usuarios.bloquearParaAtualizacao(usuario.id)).thenReturn(Optional.of(usuario));when(usuarios.findById(usuario.id)).thenReturn(Optional.of(usuario));when(sessoes.save(any())).thenAnswer(i->{Sessao s=i.getArgument(0);when(sessoes.findById(s.id)).thenReturn(Optional.of(s));return s;});}
+ @Test void loginTokenAssinadoLogout(){String token=service.entrar(new Login(usuario.email,"SeguraSenha123!"));assertThat(service.autenticar(token)).contains(usuario);assertThat(service.autenticar(token+"x")).isEmpty();assertThat(service.autenticar("invalido")).isEmpty();service.sair(token);verify(sessoes).deleteById(any());service.reautenticar(usuario,"SeguraSenha123!");assertThatThrownBy(()->service.reautenticar(usuario,"errada")).isInstanceOf(RegraNegocioException.class);}
+ @Test void bloqueiaAposCincoFalhas(){for(int i=0;i<5;i++)assertThatThrownBy(()->service.entrar(new Login(usuario.email,"errada"))).isInstanceOf(RegraNegocioException.class);assertThat(usuario.bloqueadoAte).isAfter(Instant.now());assertThatThrownBy(()->service.entrar(new Login(usuario.email,"SeguraSenha123!"))).isInstanceOf(RegraNegocioException.class);}
+ @Test void expiraPorInatividadeEDuracao(){String token=service.entrar(new Login(usuario.email,"SeguraSenha123!"));UUID id=UUID.fromString(token.split("\\.")[0]);Sessao s=sessoes.findById(id).orElseThrow();s.ultimaAtividade=Instant.now().minusSeconds(1801);assertThat(service.autenticar(token)).isEmpty();s.ultimaAtividade=Instant.now();s.criadaEm=Instant.now().minusSeconds(43201);assertThat(service.autenticar(token)).isEmpty();}
+ @Test void requerVerificacaoENegaContaBloqueada(){usuario.emailVerificado=false;assertThatThrownBy(()->service.entrar(new Login(usuario.email,"SeguraSenha123!"))).isInstanceOf(RegraNegocioException.class);usuario.emailVerificado=true;usuario.bloqueado=true;assertThatThrownBy(()->service.entrar(new Login(usuario.email,"SeguraSenha123!"))).isInstanceOf(RegraNegocioException.class);assertThatThrownBy(()->service.entrar(new Login("ausente@exemplo.com","invalida"))).isInstanceOf(RegraNegocioException.class);}
+ @Test void cadastraAdultoVerificaEmailERejeitaMenor(){var dados=new Cadastro("Teste","novo@exemplo.com","SeguraSenha123!",LocalDate.of(2000,1,1),true);service.cadastrar(dados);verify(email).enviarVerificacao(eq(dados.email()),anyString());assertThatThrownBy(()->service.cadastrar(new Cadastro("Menor","menor@exemplo.com","SeguraSenha123!",RegrasFinanceiras.hoje().minusYears(17),true))).isInstanceOf(RegraNegocioException.class);VerificacaoEmail v=new VerificacaoEmail();v.usuarioId=usuario.id;when(verificacoes.findByTokenHash(AutenticacaoService.hash("token"))).thenReturn(Optional.of(v));service.verificar("token");verify(verificacoes).delete(v);v.expiraEm=Instant.now().minusSeconds(1);assertThatThrownBy(()->service.verificar("token")).isInstanceOf(RegraNegocioException.class);assertThatThrownBy(()->service.verificar("ausente")).isInstanceOf(RegraNegocioException.class);service.cadastrar(new Cadastro("Existente",usuario.email,"SeguraSenha123!",LocalDate.of(1990,1,1),true));}
+}
