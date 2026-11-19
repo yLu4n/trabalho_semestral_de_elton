@@ -8,23 +8,23 @@ assumptions:
     reason: O teste HTTP atravessou o backend e seu adaptador real. O mock rejeita o corpo sem esses campos e os cenários válidos foram confirmados e persistidos somente após confirmação humana.
     verification: Em 2026-11-18, scripts/smoke.py concluiu 15 verificações com PostgreSQL real e Postman local. O cenário válido criou sugestão e sua confirmação criou um único lançamento; repetir a confirmação retornou 404.
     source: backend/src/main/java/br/com/finai/adapter/AdaptadorLlm.java; postman/mocks/llm/default.js; scripts/smoke.py; docs/validacao.md
-    updated_at: '2026-11-19'
+    updated_at: "2026-11-19"
   - id: degradacao-controlada
     status: supported
     claim: Nos cenários locais executados, categoria inválida, HTTP 503, HTTP 429 e timeout devolvem o formulário manual com somente o texto original.
     reason: O chamador real rejeitou a saída inválida e tratou os erros e o atraso superior a oito segundos do simulador sem persistir a sugestão como lançamento.
     verification: scripts/smoke.py passou pelos modos invalido, erro, cota e timeout; o retorno manual preservou a descrição original. Baixa confiança deixou valor e data em branco e ativou o alerta de conferência.
     source: postman/mocks/llm/default.js; backend/src/main/java/br/com/finai/service/InteligenciaService.java; scripts/smoke.py
-    updated_at: '2026-11-19'
+    updated_at: "2026-11-19"
   - id: provedor-real
     status: unknown
     claim: O modelo e a conta reais escolhidos aceitam todos os parâmetros, entregam 85% de acurácia e atendem ao p95 de seis segundos.
     reason: A documentação pública do contrato foi consultada, mas nenhuma chave real foi fornecida. Um simulador não estabelece acurácia, latência, preços ou retenção do fornecedor.
     verification: Há cinquenta frases sintéticas e um avaliador reproduzível, mas a avaliação real não foi executada. Configurar AI_API_KEY e executar scripts/avaliar_ia.py com autorização explícita de uso real para medir.
     source: tests/frases-ia.json; scripts/avaliar_ia.py; docs/operacao.md; https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create
-    updated_at: '2026-11-19'
+    updated_at: "2026-11-19"
 fingerprints:
   - id: entrega-local
-    date: '2026-11-19'
+    date: "2026-11-19"
     commit: null
     cli: 1.76.0

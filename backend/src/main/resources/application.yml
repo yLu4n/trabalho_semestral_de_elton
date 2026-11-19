@@ -52,6 +52,7 @@ finai:
   mail-mode: ${MAIL_MODE:file}
   mail-from: ${MAIL_FROM:nao-responda@finai.local}
   ai:
+    provider: ${AI_PROVIDER:openai}
     endpoint: ${AI_ENDPOINT:https://api.openai.com/v1/chat/completions}
     key: ${AI_API_KEY:}
     model: ${AI_MODEL:gpt-4.1-mini}

@@ -1,27 +1,275 @@
-import {Component, inject, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {ApiService} from '../services/api.service';
-import {Categoria, hoje, Lancamento, limitesMes, Pagina} from '../models/financeiro';
-import {EntryEditorComponent} from '../components/entry-editor.component';
-@Component({standalone:true,imports:[CommonModule,FormsModule,EntryEditorComponent],template:`
- <div class="page-heading"><div><span class="eyebrow">CADA MOVIMENTO CONTA</span><h1>Lançamentos</h1><p class="muted">Seu histórico, organizado do seu jeito.</p></div><button class="primary" (click)="novo()">+ Novo lançamento</button></div>
- @if(erro()) {<p class="notice error" role="alert">{{erro()}}</p>} @if(mensagem()) {<p class="notice" role="status">{{mensagem()}}</p>}
- <section class="panel"><form class="filters" (ngSubmit)="pagina=0;carregar()"><label>De<input type="date" name="inicio" [(ngModel)]="inicio"></label><label>Até<input type="date" name="fim" [(ngModel)]="fim"></label><label>Tipo<select name="tipo" [(ngModel)]="tipo"><option value="">Todos</option><option value="RECEITA">Receitas</option><option value="DESPESA">Despesas</option></select></label><label>Categoria<select name="categoria" [(ngModel)]="categoriaId"><option value="">Todas</option>@for(c of categorias();track c.id) {<option [value]="c.id">{{c.nome}}</option>}</select></label><label class="search-field">Descrição<input name="busca" [(ngModel)]="texto" placeholder="Buscar lançamento"></label><button class="secondary">Filtrar</button></form>
- @if(dados();as d) {<div class="inline-totals"><span>Receitas <strong>{{d.totais.receitas|currency:'BRL':'symbol':'1.2-2':'pt-BR'}}</strong></span><span>Despesas <strong>{{d.totais.despesas|currency:'BRL':'symbol':'1.2-2':'pt-BR'}}</strong></span><span>Saldo <strong>{{d.totais.saldo|currency:'BRL':'symbol':'1.2-2':'pt-BR'}}</strong></span></div><div class="table-scroll"><table><thead><tr><th>Descrição</th><th>Categoria</th><th>Data</th><th>Tipo</th><th class="align-right">Valor</th><th>Ações</th></tr></thead><tbody>@for(l of d.itens;track l.id) {<tr><td><strong>{{l.descricao}}</strong><small class="block muted">{{l.estabelecimento}}</small></td><td>{{categoria(l.categoriaId)}}</td><td>{{l.data|date:'dd/MM/yyyy':'UTC'}}</td><td>{{l.tipo==='RECEITA'?'Receita':'Despesa'}}</td><td class="align-right" [class.income-text]="l.tipo==='RECEITA'">{{l.valor|currency:'BRL':'symbol':'1.2-2':'pt-BR'}}</td><td><div class="row-actions"><button class="text-button" (click)="editar(l)">Editar</button><button class="text-button danger-text" (click)="excluir(l)">Excluir</button></div></td></tr>} @empty {<tr><td colspan="6" class="empty-table">Nenhum lançamento encontrado para os filtros.</td></tr>}</tbody></table></div><div class="pagination"><span>{{d.quantidade}} lançamentos · Página {{pagina+1}} de {{d.paginas||1}}</span><div><button class="secondary small" [disabled]="pagina===0" (click)="pagina=pagina-1;carregar()">Anterior</button><button class="secondary small" [disabled]="pagina+1>=d.paginas" (click)="pagina=pagina+1;carregar()">Próxima</button></div></div>}
- </section><div class="page-subactions"><button class="text-button" (click)="verLixeira()">{{mostraLixeira()?'Fechar lixeira':'Consultar lançamentos excluídos'}}</button><span class="muted">Registros anteriores a 24 meses são somente para consulta.</span></div>
- @if(mostraLixeira()) {<section class="panel"><h2>Lixeira</h2><p class="muted">Você pode recuperar registros durante 90 dias após a exclusão.</p>@for(l of lixeira();track l.id) {<div class="list-row"><span>{{l.descricao}} · {{l.valor|currency:'BRL':'symbol':'1.2-2':'pt-BR'}}</span><button class="secondary small" (click)="restaurar(l)">Restaurar</button></div>} @empty {<p>Nenhum registro excluído.</p>}</section>}
- @if(editor()) {<entry-editor [categorias]="categorias()" [lancamento]="selecionado" (closed)="editor.set(false);$event&&carregar()"/>}
- `})
+import { Component, inject, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { ApiService } from "../services/api.service";
+import {
+  Categoria,
+  hoje,
+  Lancamento,
+  limitesMes,
+  Pagina,
+} from "../models/financeiro";
+import { EntryEditorComponent } from "../components/entry-editor.component";
+@Component({
+  standalone: true,
+  imports: [CommonModule, FormsModule, EntryEditorComponent],
+  template: `
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">CADA MOVIMENTO CONTA</span>
+        <h1>Lançamentos</h1>
+        <p class="muted">Seu histórico, organizado do seu jeito.</p>
+      </div>
+      <button class="primary" (click)="novo()">+ Novo lançamento</button>
+    </div>
+    @if (erro()) {
+      <p class="notice error" role="alert">{{ erro() }}</p>
+    }
+    @if (mensagem()) {
+      <p class="notice" role="status">{{ mensagem() }}</p>
+    }
+    <section class="panel">
+      <form class="filters" (ngSubmit)="pagina = 0; carregar()">
+        <label>De<input type="date" name="inicio" [(ngModel)]="inicio" /></label
+        ><label>Até<input type="date" name="fim" [(ngModel)]="fim" /></label
+        ><label
+          >Tipo<select name="tipo" [(ngModel)]="tipo">
+            <option value="">Todos</option>
+            <option value="RECEITA">Receitas</option>
+            <option value="DESPESA">Despesas</option>
+          </select></label
+        ><label
+          >Categoria<select name="categoria" [(ngModel)]="categoriaId">
+            <option value="">Todas</option>
+            @for (c of categorias(); track c.id) {
+              <option [value]="c.id">{{ c.nome }}</option>
+            }
+          </select></label
+        ><label class="search-field"
+          >Descrição<input
+            name="busca"
+            [(ngModel)]="texto"
+            placeholder="Buscar lançamento" /></label
+        ><button class="secondary">Filtrar</button>
+      </form>
+      @if (dados(); as d) {
+        <div class="inline-totals">
+          <span
+            >Receitas
+            <strong>{{
+              d.totais.receitas | currency: "BRL" : "symbol" : "1.2-2" : "pt-BR"
+            }}</strong></span
+          ><span
+            >Despesas
+            <strong>{{
+              d.totais.despesas | currency: "BRL" : "symbol" : "1.2-2" : "pt-BR"
+            }}</strong></span
+          ><span
+            >Saldo
+            <strong>{{
+              d.totais.saldo | currency: "BRL" : "symbol" : "1.2-2" : "pt-BR"
+            }}</strong></span
+          >
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th class="align-right">Valor</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (l of d.itens; track l.id) {
+                <tr>
+                  <td>
+                    <strong>{{ l.descricao }}</strong
+                    ><small class="block muted">{{ l.estabelecimento }}</small>
+                  </td>
+                  <td>{{ categoria(l.categoriaId) }}</td>
+                  <td>{{ l.data | date: "dd/MM/yyyy" : "UTC" }}</td>
+                  <td>{{ l.tipo === "RECEITA" ? "Receita" : "Despesa" }}</td>
+                  <td
+                    class="align-right"
+                    [class.income-text]="l.tipo === 'RECEITA'"
+                  >
+                    {{
+                      l.valor | currency: "BRL" : "symbol" : "1.2-2" : "pt-BR"
+                    }}
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button class="text-button" (click)="editar(l)">
+                        Editar</button
+                      ><button
+                        class="text-button danger-text"
+                        (click)="excluir(l)"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="empty-table">
+                    Nenhum lançamento encontrado para os filtros.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span
+            >{{ d.quantidade }} lançamentos · Página {{ pagina + 1 }} de
+            {{ d.paginas || 1 }}</span
+          >
+          <div>
+            <button
+              class="secondary small"
+              [disabled]="pagina === 0"
+              (click)="pagina = pagina - 1; carregar()"
+            >
+              Anterior</button
+            ><button
+              class="secondary small"
+              [disabled]="pagina + 1 >= d.paginas"
+              (click)="pagina = pagina + 1; carregar()"
+            >
+              Próxima
+            </button>
+          </div>
+        </div>
+      }
+    </section>
+    <div class="page-subactions">
+      <button class="text-button" (click)="verLixeira()">
+        {{
+          mostraLixeira() ? "Fechar lixeira" : "Consultar lançamentos excluídos"
+        }}</button
+      ><span class="muted"
+        >Registros anteriores a 24 meses são somente para consulta.</span
+      >
+    </div>
+    @if (mostraLixeira()) {
+      <section class="panel">
+        <h2>Lixeira</h2>
+        <p class="muted">
+          Você pode recuperar registros durante 90 dias após a exclusão.
+        </p>
+        @for (l of lixeira(); track l.id) {
+          <div class="list-row">
+            <span
+              >{{ l.descricao }} ·
+              {{
+                l.valor | currency: "BRL" : "symbol" : "1.2-2" : "pt-BR"
+              }}</span
+            ><button class="secondary small" (click)="restaurar(l)">
+              Restaurar
+            </button>
+          </div>
+        } @empty {
+          <p>Nenhum registro excluído.</p>
+        }
+      </section>
+    }
+    @if (editor()) {
+      <entry-editor
+        [categorias]="categorias()"
+        [lancamento]="selecionado"
+        (closed)="editor.set(false); $event && carregar()"
+      />
+    }
+  `,
+})
 export class TransactionsComponent {
- private api=inject(ApiService); categorias=signal<Categoria[]>([]); dados=signal<Pagina|null>(null); lixeira=signal<Lancamento[]>([]);
- erro=signal('');mensagem=signal('');editor=signal(false);mostraLixeira=signal(false);selecionado?:Lancamento;
- inicio=limitesMes(hoje().slice(0,7)).inicio;fim=limitesMes(hoje().slice(0,7)).fim;tipo='';categoriaId='';texto='';pagina=0;
- constructor(){void this.carregar();}
- async carregar(){this.erro.set('');try{const [d,c]=await Promise.all([this.api.get<Pagina>('/lancamentos',{inicio:this.inicio,fim:this.fim,tipo:this.tipo,categoriaId:this.categoriaId,texto:this.texto,pagina:this.pagina}),this.api.get<Categoria[]>('/categorias')]);this.dados.set(d);this.categorias.set(c);}catch(e){this.erro.set(this.api.mensagem(e));}}
- categoria(id:string){return this.categorias().find(c=>c.id===id)?.nome||'Categoria';}
- novo(){this.selecionado=undefined;this.editor.set(true);}editar(l:Lancamento){this.selecionado=l;this.editor.set(true);}
- async excluir(l:Lancamento){if(!confirm('Excluir “'+l.descricao+'”? O registro poderá ser recuperado por 90 dias.'))return;try{await this.api.delete('/lancamentos/'+l.id);this.mensagem.set('Lançamento movido para a lixeira.');await this.carregar();}catch(e){this.erro.set(this.api.mensagem(e));}}
- async verLixeira(){this.mostraLixeira.set(!this.mostraLixeira());if(this.mostraLixeira())try{this.lixeira.set(await this.api.get<Lancamento[]>('/lixeira'));}catch(e){this.erro.set(this.api.mensagem(e));}}
- async restaurar(l:Lancamento){try{await this.api.post('/lancamentos/'+l.id+'/restaurar');this.lixeira.set(this.lixeira().filter(x=>x.id!==l.id));await this.carregar();}catch(e){this.erro.set(this.api.mensagem(e));}}
+  private api = inject(ApiService);
+  categorias = signal<Categoria[]>([]);
+  dados = signal<Pagina | null>(null);
+  lixeira = signal<Lancamento[]>([]);
+  erro = signal("");
+  mensagem = signal("");
+  editor = signal(false);
+  mostraLixeira = signal(false);
+  selecionado?: Lancamento;
+  inicio = limitesMes(hoje().slice(0, 7)).inicio;
+  fim = limitesMes(hoje().slice(0, 7)).fim;
+  tipo = "";
+  categoriaId = "";
+  texto = "";
+  pagina = 0;
+  constructor() {
+    void this.carregar();
+  }
+  async carregar() {
+    this.erro.set("");
+    try {
+      const [d, c] = await Promise.all([
+        this.api.get<Pagina>("/lancamentos", {
+          inicio: this.inicio,
+          fim: this.fim,
+          tipo: this.tipo,
+          categoriaId: this.categoriaId,
+          texto: this.texto,
+          pagina: this.pagina,
+        }),
+        this.api.get<Categoria[]>("/categorias"),
+      ]);
+      this.dados.set(d);
+      this.categorias.set(c);
+    } catch (e) {
+      this.erro.set(this.api.mensagem(e));
+    }
+  }
+  categoria(id: string) {
+    return this.categorias().find((c) => c.id === id)?.nome || "Categoria";
+  }
+  novo() {
+    this.selecionado = undefined;
+    this.editor.set(true);
+  }
+  editar(l: Lancamento) {
+    this.selecionado = l;
+    this.editor.set(true);
+  }
+  async excluir(l: Lancamento) {
+    if (
+      !confirm(
+        "Excluir “" +
+          l.descricao +
+          "”? O registro poderá ser recuperado por 90 dias.",
+      )
+    )
+      return;
+    try {
+      await this.api.delete("/lancamentos/" + l.id);
+      this.mensagem.set("Lançamento movido para a lixeira.");
+      await this.carregar();
+    } catch (e) {
+      this.erro.set(this.api.mensagem(e));
+    }
+  }
+  async verLixeira() {
+    this.mostraLixeira.set(!this.mostraLixeira());
+    if (this.mostraLixeira())
+      try {
+        this.lixeira.set(await this.api.get<Lancamento[]>("/lixeira"));
+      } catch (e) {
+        this.erro.set(this.api.mensagem(e));
+      }
+  }
+  async restaurar(l: Lancamento) {
+    try {
+      await this.api.post("/lancamentos/" + l.id + "/restaurar");
+      this.lixeira.set(this.lixeira().filter((x) => x.id !== l.id));
+      await this.carregar();
+    } catch (e) {
+      this.erro.set(this.api.mensagem(e));
+    }
+  }
 }

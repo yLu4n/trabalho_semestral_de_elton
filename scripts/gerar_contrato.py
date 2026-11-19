@@ -7,7 +7,7 @@ def obj(properties,required=None):return {'type':'object','properties':propertie
 def ref(name):return {'$ref':'#/components/schemas/'+name}
 schemas={
  'Mensagem':obj({'mensagem':S}),
- 'Cadastro':obj({'nome':{'type':'string','maxLength':100},'email':{'type':'string','format':'email'},'senha':{'type':'string','minLength':12,'maxLength':72},'nascimento':{'type':'string','format':'date'},'aceitaPrivacidade':{'type':'boolean','enum':[True]}}),
+ 'Cadastro':obj({'nome':{'type':'string','maxLength':100},'email':{'type':'string','format':'email'},'senha':{'type':'string','minLength':8,'maxLength':72},'nascimento':{'type':'string','format':'date'},'aceitaPrivacidade':{'type':'boolean','enum':[True],'description':'Aceite explícito dos termos de uso e da política de privacidade.'}}),
  'Login':obj({'email':{'type':'string','format':'email'},'senha':S}),
  'CategoriaEntrada':obj({'nome':{'type':'string','maxLength':80},'tipo':{'type':'string','enum':['RECEITA','DESPESA']},'cor':{'type':'string','pattern':'^#[0-9a-fA-F]{6}$'},'ativa':{'type':'boolean'}}),
  'LancamentoEntrada':obj({'tipo':{'type':'string','enum':['RECEITA','DESPESA']},'valor':{'type':'string','pattern':r'^\d{1,7}(\.\d{1,2})?$','description':'Decimal exato entre 0.01 e 1000000.00. Nunca calculado em ponto flutuante.'},'data':{'type':'string','format':'date'},'categoriaId':{'type':'string','format':'uuid'},'descricao':{'type':'string','minLength':1,'maxLength':280},'estabelecimento':{'type':'string','maxLength':120},'formaPagamento':{'type':'string','maxLength':60}},['tipo','valor','data','categoriaId','descricao']),
@@ -43,7 +43,10 @@ def add(method,path,summary,body=None,response=None,query=(),public=False):
     paths.setdefault('/api'+path,{})[method]=operation
 add('get','/auth/csrf','Obter token CSRF',public=True)
 add('post','/auth/cadastro','Criar conta e enviar verificação','Cadastro','Mensagem',public=True)
+paths['/api/auth/cadastro']['post']['responses']['409']={'description':'E-mail já cadastrado'}
 add('post','/auth/verificar','Verificar e-mail',obj({'token':S}),'Mensagem',public=True)
+add('post','/auth/recuperar','Solicitar vínculo de recuperação',obj({'email':{'type':'string','format':'email'}}),'Mensagem',public=True)
+add('post','/auth/redefinir','Redefinir senha com vínculo de uso único',obj({'token':S,'senha':{'type':'string','minLength':8,'maxLength':72}}),'Mensagem',public=True)
 add('post','/auth/login','Autenticar com e-mail e senha','Login','Mensagem',public=True)
 add('get','/auth/eu','Consultar perfil autenticado')
 add('post','/auth/logout','Revogar sessão')

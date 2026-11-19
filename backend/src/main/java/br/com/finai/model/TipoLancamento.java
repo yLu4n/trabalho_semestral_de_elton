@@ -1,2 +1,5 @@
 package br.com.finai.model;
-public enum TipoLancamento { RECEITA, DESPESA }
+
+public enum TipoLancamento {
+    RECEITA, DESPESA
+}

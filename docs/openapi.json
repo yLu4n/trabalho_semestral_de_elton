@@ -84,6 +84,9 @@
           },
           "503": {
             "description": "Serviço externo indisponível"
+          },
+          "409": {
+            "description": "E-mail já cadastrado"
           }
         },
         "requestBody": {
@@ -1854,6 +1857,153 @@
           }
         ]
       }
+    },
+    "/api/auth/recuperar": {
+      "post": {
+        "summary": "Solicitar vínculo de recuperação",
+        "operationId": "post__auth_recuperar",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mensagem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ],
+        "security": []
+      }
+    },
+    "/api/auth/redefinir": {
+      "post": {
+        "summary": "Redefinir senha com vínculo de uso único",
+        "operationId": "post__auth_redefinir",
+        "responses": {
+          "200": {
+            "description": "Operação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mensagem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida"
+          },
+          "401": {
+            "description": "Sessão inválida ou expirada"
+          },
+          "403": {
+            "description": "Papel não autorizado ou CSRF inválido"
+          },
+          "404": {
+            "description": "Recurso inexistente ou de outro titular"
+          },
+          "422": {
+            "description": "Regra de negócio violada"
+          },
+          "429": {
+            "description": "Cota da IA excedida"
+          },
+          "503": {
+            "description": "Serviço externo indisponível"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 72
+                  }
+                },
+                "required": [
+                  "token",
+                  "senha"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-XSRF-TOKEN",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Valor atual do cookie XSRF-TOKEN obtido em GET /auth/csrf."
+          }
+        ],
+        "security": []
+      }
     }
   },
   "components": {
@@ -1890,7 +2040,7 @@
           },
           "senha": {
             "type": "string",
-            "minLength": 12,
+            "minLength": 8,
             "maxLength": 72
           },
           "nascimento": {
@@ -1901,7 +2051,8 @@
             "type": "boolean",
             "enum": [
               true
-            ]
+            ],
+            "description": "Aceite explícito dos termos de uso e da política de privacidade."
           }
         },
         "required": [

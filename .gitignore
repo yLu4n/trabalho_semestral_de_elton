@@ -1,9 +1,28 @@
-**/node_modules/
-**/dist/
-**/target/
+# Dependências e artefatos de build
+node_modules/
+dist/
+target/
+.angular/
+out-tsc/
+coverage/
+*.exec
+
+# Dados, logs e ferramentas locais
 .runtime/
-.env
+.tools/
 var/
 *.log
-.tools/
+
+# Configuração local e credenciais
+.env
+.env.*
+!.env.example
+*.key
+*.p12
+*.pfx
+
+# Cache e ambientes virtuais Python
 __pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
