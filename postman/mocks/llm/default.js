@@ -4,6 +4,7 @@ let modo = "valido";
 http
   .createServer(async (req, res) => {
     const reply = (status, value) => {
+      if (res.destroyed || res.writableEnded) return;
       res.writeHead(status, { "Content-Type": "application/json" });
       res.end(JSON.stringify(value));
     };
@@ -18,13 +19,15 @@ http
       return reply(503, { error: { message: "Falha transitória simulada" } });
     if (modo === "cota")
       return reply(429, { error: { message: "Cota simulada" } });
-    if (modo === "timeout")
-      await new Promise((resolve) => setTimeout(resolve, 9000));
     let body = req.body;
     if (!body) {
       let raw = "";
-      for await (const chunk of req) raw += chunk;
-      body = JSON.parse(raw);
+      try {
+        for await (const chunk of req) raw += chunk;
+        body = JSON.parse(raw);
+      } catch {
+        return reply(400, { error: "Corpo da requisição inválido" });
+      }
     }
     if (
       !Array.isArray(body.messages) ||
@@ -32,7 +35,16 @@ http
       body.response_format?.type !== "json_object"
     )
       return reply(400, { error: "Contrato inválido" });
-    const dados = JSON.parse(body.messages[1].content);
+    if (modo === "timeout") {
+      await new Promise((resolve) => setTimeout(resolve, 9000));
+      if (res.destroyed || res.writableEnded) return;
+    }
+    let dados;
+    try {
+      dados = JSON.parse(body.messages[1]?.content);
+    } catch {
+      return reply(400, { error: "Mensagem inválida" });
+    }
     let content;
     if (dados.texto) {
       const c = dados.categorias.find((c) => c.tipo === "DESPESA");
@@ -63,18 +75,8 @@ http
         content.confianca.data = 0.4;
       }
     } else {
-      const sorted = [...dados.categorias].sort(
-        (a, b) =>
-          Math.abs(Number(b.atual) - Number(b.anterior)) -
-          Math.abs(Number(a.atual) - Number(a.anterior)),
-      );
-      const diff = dados.categorias.reduce(
-        (sum, c) => sum + Number(c.atual) - Number(c.anterior),
-        0,
-      );
       content = {
-        destaques: sorted.slice(0, 3).map((c) => c.categoria),
-        tendencia: diff > 0 ? "ALTA" : diff < 0 ? "QUEDA" : "ESTAVEL",
+        texto: `O maior destaque apresentou ${dados.direcaoDoMaiorDestaque}, com tendencia de ${dados.tendenciaDoTotal}.`,
       };
     }
     reply(200, {

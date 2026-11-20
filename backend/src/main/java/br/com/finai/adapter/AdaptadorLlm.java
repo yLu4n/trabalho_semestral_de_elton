@@ -65,7 +65,7 @@ public class AdaptadorLlm implements ProvedorIa {
                         Map.of("name", "lancamento_finai", "schema", esquemaLancamento(dados))));
             }
             if (!ollama) corpo.put("store", false);
-            var request = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(ollama ? 90 : 8))
+            var request = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(8))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(corpo)));
             if (!ollama) request.header("Authorization", "Bearer " + chave);

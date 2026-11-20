@@ -47,11 +47,12 @@ def assegurar_banco_local():
         with socket.create_connection(('127.0.0.1', destino.port or 5432), timeout=2):
             return
     except OSError:
-        if not (RUNTIME/'postgres'/'PG_VERSION').is_file():
+        dados_banco = Path(os.environ.get('FINAI_PG_DATA', RUNTIME / 'postgres'))
+    if not (dados_banco / 'PG_VERSION').is_file():
             raise SystemExit('PostgreSQL local indisponível. Execute python scripts/database.py start.')
     print('PostgreSQL local parado. Iniciando o banco do projeto…', flush=True)
     if subprocess.call([sys.executable,str(ROOT/'scripts/database.py'),'start'],cwd=ROOT):
-        raise SystemExit('O backend não foi iniciado. Veja .runtime/postgres.log.')
+        raise SystemExit('O backend não foi iniciado. Confira o log do PostgreSQL indicado acima.')
 def configurar_ollama():
     portavel=RUNTIME/'ollama-bin'/('ollama.exe' if os.name=='nt' else 'ollama')
     ollama=str(portavel) if portavel.is_file() else shutil.which('ollama')
@@ -120,7 +121,21 @@ def manter_ollama_local():
         elif configuracao.get('AI_MODEL','qwen2.5:3b') not in modelos:
             print('Modelo local ausente. Rode python scripts/dev.py ollama-pull com o serviço ativo.',flush=True)
         else:
-            print('Ollama local pronto.',flush=True)
+            modelo = configuracao.get('AI_MODEL', 'qwen2.5:3b')
+            conexao = http.client.HTTPConnection('127.0.0.1', 11434, timeout=90)
+            try:
+                print('Carregando o modelo local na memória…', flush=True)
+                conexao.request('POST', '/api/generate', json.dumps({'model': modelo, 'keep_alive': '10m'}),
+                                {'Content-Type': 'application/json'})
+                resposta = conexao.getresponse()
+                resposta.read()
+                if resposta.status != 200:
+                    raise OSError(f'HTTP {resposta.status}')
+                print('Ollama local pronto.', flush=True)
+            except (OSError, http.client.HTTPException) as erro:
+                print(f'Não foi possível aquecer o modelo local: {erro}', flush=True)
+            finally:
+                conexao.close()
         yield
     finally:
         if processo is not None and processo.poll() is None:
@@ -138,9 +153,29 @@ if __name__=='__main__':
         if not arquivo.exists(): arquivo.write_text('DATABASE_URL=jdbc:postgresql://localhost:55432/finai\nDATABASE_USER=finai\nDATABASE_PASSWORD='+secrets.token_urlsafe(24)+'\nSESSION_SECRET='+secrets.token_urlsafe(48)+'\nMAIL_MODE=file\n',encoding='utf-8')
         print('Configuração local pronta. Credenciais mantidas no arquivo .env ignorado pelo Git.')
     elif acao in ('install','frontend','build-frontend'):
-        npm=shutil.which('npm.cmd') or shutil.which('npm')
-        comando={'install':['install','--no-audit','--no-fund','--cache',str(RUNTIME/'npm-cache')],'frontend':['start'],'build-frontend':['run','build']}[acao]
-        sys.exit(executar([npm,*comando],ROOT/'frontend'))
+        env = ambiente()
+        frontend = ROOT / 'frontend'
+        proxy_local = RUNTIME / 'proxy-local.json'
+        npm = shutil.which('npm.cmd', path=env['PATH']) or shutil.which('npm', path=env['PATH'])
+        if os.name == 'nt' and npm is None:
+            ferramentas = ROOT.parent / 'work' / 'finai-tools'
+            portavel = next((p for p in ferramentas.glob('node-*-win-*')
+                             if (p / 'node.exe').is_file() and (p / 'npm.cmd').is_file()), None)
+            if portavel:
+                env['PATH'] = str(portavel) + os.pathsep + env['PATH']
+                npm = str(portavel / 'npm.cmd')
+        if npm is None:
+            raise SystemExit('npm não foi encontrado. Instale o Node.js com npm ou use o atalho Iniciar-FinAI.cmd.')
+        if acao == 'frontend' and proxy_local.is_file():
+            cli = frontend / 'node_modules' / '@angular' / 'cli' / 'bin' / 'ng.js'
+            node = shutil.which('node', path=env['PATH'])
+            if node is None or not cli.is_file():
+                raise SystemExit('Frontend indisponível. Execute python scripts/dev.py install e tente novamente.')
+            sys.exit(executar([node, str(cli), 'serve', '--host', '127.0.0.1', '--proxy-config', str(proxy_local)],
+                              frontend, env))
+        comando = {'install': ['install', '--no-audit', '--no-fund', '--cache', str(RUNTIME / 'npm-cache')],
+                   'frontend': ['start'], 'build-frontend': ['run', 'build']}[acao]
+        sys.exit(executar([npm, *comando], frontend, env))
     elif acao in ('ollama-local','ollama-pull'):
         ollama,env=configurar_ollama()
         argumentos=['serve'] if acao=='ollama-local' else ['pull',ambiente().get('AI_MODEL','qwen2.5:3b')]

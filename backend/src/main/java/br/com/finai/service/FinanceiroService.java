@@ -67,7 +67,8 @@ public class FinanceiroService {
         l.usuarioId = usuario;
         l.tipo = dados.tipo();
         l.valor = RegrasFinanceiras.moeda(dados.valor());
-        l.data = dados.data();
+        LocalDate hoje = RegrasFinanceiras.hoje();
+        l.data = dados.tipo() == TipoLancamento.DESPESA && dados.data().isAfter(hoje) ? hoje : dados.data();
         l.categoriaId = c.id;
         l.descricao = dados.descricao().trim();
         l.estabelecimento = dados.estabelecimento();

@@ -138,7 +138,8 @@ public class AutenticacaoService {
             throw new RegraNegocioException(401, "E-mail ou senha inválidos.");
         if (u.bloqueado || u.exclusaoSolicitadaEm != null
                 || (u.bloqueadoAte != null && u.bloqueadoAte.isAfter(Instant.now())))
-            throw new RegraNegocioException(401, "Conta indisponível ou temporariamente bloqueada.");
+            throw new RegraNegocioException(401,
+                    correta ? "Conta indisponível ou temporariamente bloqueada." : "E-mail ou senha inválidos.");
         if (!correta) {
             u.tentativas++;
             if (u.tentativas >= 5) {

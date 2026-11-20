@@ -54,6 +54,43 @@ class InteligenciaServiceTest {
         assertThat(ambigua.campos().get("data")).isEqualTo(RegrasFinanceiras.hoje().toString());
     }
 
+    @Test
+    void sugereTransporteParaCorridaSemConfundirEntrega() throws Exception {
+        Categoria transporte = new Categoria();
+        transporte.nome = "Transporte";
+        transporte.tipo = TipoLancamento.DESPESA;
+        when(financeiro.categorias(usuario)).thenReturn(List.of(categoria, transporte));
+        when(provedor.gerar(any(), any(), any(), anyBoolean())).thenReturn(resposta());
+
+        var corrida = service.interpretar(usuario, "Paguei 52 reais de Uber ontem no cartão");
+        assertThat(corrida.campos().get("categoriaId")).isEqualTo(transporte.id.toString());
+        var entrega = service.interpretar(usuario, "Paguei 52 reais de Uber Eats ontem no cartão");
+        assertThat(entrega.campos().get("categoriaId")).isEqualTo(categoria.id.toString());
+    }
+
+    @Test
+    void mantemCategoriaEValorExplicitoQuandoOProvedorFalha() {
+        Categoria transporte = new Categoria();
+        transporte.nome = "Transporte";
+        transporte.tipo = TipoLancamento.DESPESA;
+        Categoria saude = new Categoria();
+        saude.nome = "Saúde";
+        saude.tipo = TipoLancamento.DESPESA;
+        when(financeiro.categorias(usuario)).thenReturn(List.of(categoria, transporte, saude));
+        when(provedor.gerar(any(), any(), any(), anyBoolean())).thenThrow(new IllegalStateException());
+
+        for (String frase : List.of("Uber", "ônibus", "transporte")) {
+            var sugestao = service.interpretar(usuario, frase);
+            assertThat(sugestao.campos()).containsEntry("categoriaId", transporte.id.toString()).doesNotContainKey("valor");
+            assertThat(sugestao.pendentes()).contains("valor");
+        }
+        var sugestao = service.interpretar(usuario, "Paguei R$ 52,30 no hospital ontem");
+        assertThat(sugestao.campos()).containsEntry("categoriaId", saude.id.toString())
+                .containsEntry("valor", "52.30").containsEntry("data", RegrasFinanceiras.hoje().minusDays(1).toString());
+        assertThat(service.interpretar(usuario, "Fui ao hospital").campos())
+                .containsEntry("categoriaId", saude.id.toString()).doesNotContainKey("valor");
+    }
+
     JsonNode resposta() throws Exception {
         return mapper.readTree("{\"campos\":{\"tipo\":\"DESPESA\",\"valor\":38.20,\"data\":\""
                 + RegrasFinanceiras.hoje() + "\",\"categoriaId\":\"" + categoria.id
@@ -74,7 +111,7 @@ class InteligenciaServiceTest {
     @Test
     void falhaTentaNovamenteEOfereceManual() {
         when(provedor.gerar(any(), any(), any(), anyBoolean())).thenThrow(new IllegalStateException());
-        var s = service.interpretar(usuario, "Almoço 38");
+        var s = service.interpretar(usuario, "Movimento 38");
         assertThat(s.manual()).isTrue();
         assertThat(s.campos()).containsOnlyKeys("descricao");
         verify(provedor, times(2)).gerar(any(), any(), any(), anyBoolean());
@@ -166,9 +203,11 @@ class InteligenciaServiceTest {
         var variacao = new Variacao("Alimentação", new BigDecimal("10"), new BigDecimal("30"), new BigDecimal("20"));
         when(financeiro.variacoes(eq(usuario), any())).thenReturn(List.of(variacao));
         when(provedor.gerar(eq("DIAGNOSTICO"), any(), any(), eq(false)))
-                .thenReturn(mapper.readTree("{\"destaques\":[\"categoria_0\"],\"tendencia\":\"ALTA\"}"));
+                .thenReturn(mapper.readTree("{\"texto\":\"O maior destaque acompanha a tendência de aumento.\"}"));
         var d = service.diagnosticar(usuario, YearMonth.now().toString());
-        assertThat(d.texto()).contains("Alimentação", "30,00").hasSizeLessThan(2000);
+        assertThat(d.texto()).contains("R$ 10,00", "R$ 30,00", "O maior destaque acompanha a tendência de aumento.");
+        assertThat(d.variacoes()).containsExactly(variacao);
+        verifyNoInteractions(cotas);
         assertThat(d.aviso()).contains("não constitui");
         var captor = org.mockito.ArgumentCaptor.forClass(Object.class);
         verify(provedor).gerar(eq("DIAGNOSTICO"), any(), captor.capture(), eq(false));

@@ -781,11 +781,17 @@ progress::-webkit-progress-bar {
   border-radius: 9px;
 }
 progress::-webkit-progress-value {
-  background: #6a9564;
+  background: currentColor;
   border-radius: 9px;
 }
 progress::-moz-progress-bar {
-  background: #6a9564;
+  background: currentColor;
+}
+progress[data-estado="ATENCAO"] {
+  color: var(--warning);
+}
+progress[data-estado="CRITICO"] {
+  color: var(--red);
 }
 .bar-chart {
   height: 145px;

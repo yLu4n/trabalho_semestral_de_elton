@@ -215,6 +215,7 @@ import { EntryEditorComponent } from "../components/entry-editor.component";
                 >
               </div>
               <progress
+                [attr.data-estado]="m.estado"
                 [value]="m.percentual"
                 max="100"
                 [attr.aria-label]="
@@ -348,6 +349,17 @@ import { EntryEditorComponent } from "../components/entry-editor.component";
           <span class="eyebrow">DIAGNÓSTICO MENSAL</span>
           <h2>Um pouco mais de contexto</h2>
           <p>{{ d.texto }}</p>
+          @if (d.variacoes.length) {
+            <ol>
+              @for (v of d.variacoes; track $index) {
+                <li>
+                  <strong>{{ v.categoria }}</strong>
+                  &middot; {{ v.anterior | currency: "BRL" : "symbol" : "1.2-2" : "pt-BR" }}
+                  &rarr; {{ v.atual | currency: "BRL" : "symbol" : "1.2-2" : "pt-BR" }}
+                </li>
+              }
+            </ol>
+          }
           <p class="notice">{{ d.aviso }}</p>
         </section>
       }

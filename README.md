@@ -12,7 +12,7 @@ O FinAI é um sistema de finanças pessoais. O titular pode registrar uma receit
 ## Tecnologias
 
 - Backend em Java 21 com Spring Boot, Spring Security, JPA e Flyway.
-- Frontend em Angular 21 com TypeScript.
+- Frontend em Angular 22 com TypeScript.
 - PostgreSQL 18. Scripts de desenvolvimento e aceite em Python.
 
 ## Estrutura do projeto
@@ -30,7 +30,7 @@ O FinAI é um sistema de finanças pessoais. O titular pode registrar uma receit
 
 ### Pré-requisitos
 
-Instale o JDK 21, PostgreSQL 18, Python 3 e Node.js com npm. Para gerar sugestões com IA local, instale também o Ollama e baixe o modelo conforme a seção abaixo. O Angular CLI deste projeto aceita Node.js 20 a partir de 20.19, Node.js 22 a partir de 22.12 ou Node.js 24 e superior. Os scripts usam o Maven disponível no ambiente e podem baixá-lo se necessário.
+Instale o JDK 21, PostgreSQL 18, Python 3 e Node.js com npm. Para gerar sugestões com IA local, instale também o Ollama e baixe o modelo conforme a seção abaixo. O Angular CLI deste projeto aceita Node.js 22 a partir de 22.22.3, Node.js 24 a partir de 24.15 ou Node.js 26 e superior. Os scripts usam o Maven disponível no ambiente e podem baixá-lo se necessário.
 
 Se os executáveis do PostgreSQL estiverem em outra pasta, defina a variável de ambiente PG_BIN antes de rodar o script de banco:
 
@@ -38,9 +38,27 @@ Se os executáveis do PostgreSQL estiverem em outra pasta, defina a variável de
 $env:PG_BIN = 'C:\caminho\para\PostgreSQL\18\bin'
 ```
 
-### Inicialização
+### Instalação portátil com o atalho local
 
-Na raiz do repositório, execute no PowerShell:
+Se esta cópia foi preparada com o atalho `Iniciar-FinAI.cmd` na pasta `outputs` ao lado do repositório, execute o comando abaixo no PowerShell a partir da raiz do projeto. O atalho usa as ferramentas portáteis em `../work/finai-tools`. Esses arquivos fazem parte da instalação local e ficam fora do repositório.
+
+```powershell
+& '..\outputs\Iniciar-FinAI.cmd'
+```
+
+Acesse [FinAI no navegador](http://localhost:4200). Nesta instalação, a API usa a porta `8081` e o PostgreSQL usa a porta `54330`, com dados em `.runtime/postgres-local`. O atalho configura essas opções para os processos que ele inicia.
+
+Para reiniciar apenas o backend ou o frontend, encerre o processo correspondente com **Ctrl+C** e use o comando abaixo. Para encerrar o banco após parar o backend, use `parar-banco`.
+
+```powershell
+& '..\outputs\Iniciar-FinAI.cmd' backend
+& '..\outputs\Iniciar-FinAI.cmd' frontend
+& '..\outputs\Iniciar-FinAI.cmd' parar-banco
+```
+
+### Inicialização de um clone novo
+
+Com os pré-requisitos instalados, execute na raiz do repositório no PowerShell:
 
 ```powershell
 python scripts/dev.py configurar
@@ -81,7 +99,7 @@ Consulte [.env.example](.env.example) e mantenha as credenciais no arquivo local
 | Banco          | DATABASE_URL, DATABASE_USER e DATABASE_PASSWORD                                                                                                                              |
 | Sessão e links | SESSION_SECRET, PUBLIC_URL e COOKIE_SECURE                                                                                                                                   |
 | IA             | AI_PROVIDER, AI_MODEL e AI_ENDPOINT. Use AI_API_KEY para provedores que exigem chave. AI_INPUT_COST e AI_OUTPUT_COST são opcionais e servem para estimar custos por chamada. |
-| E-mail         | MAIL*MODE=file grava mensagens de desenvolvimento em arquivos. MAIL_MODE=smtp usa MAIL_FROM e as variáveis SMTP*\*.                                                          |
+| E-mail         | MAIL_MODE=file grava mensagens de desenvolvimento em arquivos. MAIL_MODE=smtp usa MAIL_FROM e as variáveis SMTP_*.                                                          |
 
 O lançamento manual continua disponível quando a IA está desativada ou indisponível. No Windows, o script de inicialização usa os certificados confiáveis do sistema para o Java, caso você não tenha configurado um repositório de certificados próprio. Para usar um provedor real, configure as credenciais antes de iniciar o backend. O projeto também inclui uma simulação Postman. Para testar sem chave, rode python scripts/dev.py ia-local em um terminal. Em outro terminal, execute python scripts/dev.py backend-simulation no lugar de backend. O simulador roda na porta 4010 e devolve respostas de teste.
 
@@ -114,9 +132,19 @@ python scripts/dev.py ollama-pull
 python scripts/dev.py backend
 ```
 
-Nas próximas vezes, o comando de backend inicia o Ollama automaticamente quando necessário. O log dessa inicialização fica em .runtime/ollama.log. Com o frontend aberto, envie uma frase fictícia, como “Almocei gastando 38 reais ontem no Outback”, e revise os campos antes de confirmar.
+Nas próximas vezes, o comando de backend inicia o Ollama quando necessário e tenta carregar o modelo na memória antes de disponibilizar a API. Aguarde a mensagem **Ollama local pronto**. O log do serviço iniciado pelo projeto fica em .runtime/ollama.log. Cada chamada ao provedor tem limite de oito segundos. As metas de latência e acurácia estão no [roteiro de aceite](docs/aceite.md). Veja a [documentação do Ollama para Windows](https://docs.ollama.com/windows).
 
-O tempo de geração depende do computador e a primeira chamada pode incluir o carregamento do modelo. As metas de latência e acurácia continuam no roteiro de aceite. Veja a [documentação do Ollama para Windows](https://docs.ollama.com/windows).
+### Interpretação de lançamentos
+
+Na tela de lançamento por IA, escreva uma frase como “Paguei R$ 52,30 no hospital ontem” e revise o rascunho antes de salvar. O FinAI reconhece vocabulário em português do Brasil para as nove categorias padrão e procura pelo nome das categorias personalizadas ativas. Por exemplo, ônibus e Uber indicam Transporte, hospital e farmácia indicam Saúde, e Uber Eats indica Alimentação.
+
+Quando a frase indica uma categoria clara e o Ollama falha, o FinAI pode abrir um rascunho com a categoria e preencher o valor explícito e a data relativa quando reconhecidos. Se faltar o valor, preencha-o no formulário. A cota de interpretação é liberada quando a chamada termina sem uma sugestão válida.
+
+### Diagnóstico financeiro mensal
+
+Em **Visão geral**, selecione o mês no topo e role até **Um olhar para o mês**. Clique em **Gerar diagnóstico mensal**. O resultado aparece na mesma página, abaixo do cartão.
+
+O backend calcula os totais e até três das maiores variações de despesas em relação ao mês anterior. Com Ollama configurado, o modelo gera o comentário qualitativo a partir das tendências calculadas. Os valores e os nomes das categorias são exibidos pelo FinAI. O diagnóstico tem limite de 250 palavras e não consome a cota de interpretação de lançamentos. Para conferir o fluxo, registre despesas em dois meses consecutivos e gere o diagnóstico para o mês mais recente.
 
 ## Testes e documentação
 

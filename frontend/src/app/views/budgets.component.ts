@@ -78,6 +78,7 @@ import { Categoria, hoje, Meta } from "../models/financeiro";
             planejados
           </p>
           <progress
+            [attr.data-estado]="m.estado"
             [value]="m.percentual"
             max="100"
             [attr.aria-label]="m.categoria + ': ' + m.percentual + '%'"

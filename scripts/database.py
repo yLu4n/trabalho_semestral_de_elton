@@ -4,11 +4,12 @@ import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import urlsplit
+from uuid import uuid4
 
 from dev import ROOT, RUNTIME, ambiente
 
-DATA = RUNTIME / 'postgres'
-LOG = RUNTIME / 'postgres.log'
+DATA = Path(os.environ.get('FINAI_PG_DATA', RUNTIME / 'postgres'))
+LOG = RUNTIME / (f'{DATA.name}-{uuid4().hex}.log' if 'FINAI_PG_DATA' in os.environ else 'postgres.log')
 
 
 def pg(programa, *args, env=None, check=True, capture_output=False):

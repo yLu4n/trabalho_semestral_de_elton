@@ -18,7 +18,7 @@ public class CotaIaService {
     }
 
     @Transactional
-    public void reservar(UUID usuario) {
+    public LocalDate reservar(UUID usuario) {
         usuarios.bloquearParaAtualizacao(usuario).orElseThrow(() -> new RegraNegocioException(401, "Conta inválida."));
         LocalDate hoje = RegrasFinanceiras.hoje();
         YearMonth mes = YearMonth.from(hoje);
@@ -31,5 +31,18 @@ public class CotaIaService {
         uso.dia = hoje;
         uso.quantidade++;
         usos.save(uso);
+        return hoje;
+    }
+
+    @Transactional
+    public void devolver(UUID usuario, LocalDate dia) {
+        if (usuarios.bloquearParaAtualizacao(usuario).isEmpty())
+            return;
+        usos.findByUsuarioIdAndDia(usuario, dia).ifPresent(uso -> {
+            if (uso.quantidade > 0) {
+                uso.quantidade--;
+                usos.save(uso);
+            }
+        });
     }
 }

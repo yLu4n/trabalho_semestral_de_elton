@@ -66,7 +66,7 @@ if __name__=='__main__':
     modo('baixa-confianca');s=a.call('POST','/ia/interpretacoes',{'texto':'Talvez um almoço de 38 hoje'});assert s['campos']['valor'] is None and s['campos']['data'] is None and s['conferirValor'];ok('Baixa confiança deixa valor e data em branco e emite alerta')
     a.call('DELETE','/ia/sugestoes/'+s['id'])
     for falha in ('invalido','erro','cota'):
-        modo(falha);s=a.call('POST','/ia/interpretacoes',{'texto':'Almoço 38'});assert s['manual'] and s['campos']=={'descricao':'Almoço 38'}
+        modo(falha);s=a.call('POST','/ia/interpretacoes',{'texto':'Movimento 38'});assert s['manual'] and s['campos']=={'descricao':'Movimento 38'}
     ok('Categoria inválida, HTTP 503 e HTTP 429 levam ao formulário manual sem perder texto')
     modo('timeout');inicio=time.monotonic();s=a.call('POST','/ia/interpretacoes',{'texto':'Almoço 38'});assert s['manual'];assert time.monotonic()-inicio<23;ok('Timeout do provedor tratado sem bloquear registro manual')
     modo('valido');d=a.call('POST','/ia/diagnosticos?mes='+mes);assert len(d['texto'].split())<=250 and 'não constitui' in d['aviso'];ok('Diagnóstico com limite de palavras e aviso permanente')

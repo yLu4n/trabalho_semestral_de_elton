@@ -31,6 +31,9 @@ export class AuthService {
   }
   async sair() {
     await this.api.post("/auth/logout");
+    this.limparSessao();
+  }
+  limparSessao() {
     this.perfil.set(null);
     this.carregamento = undefined;
   }

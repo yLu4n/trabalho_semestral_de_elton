@@ -17,7 +17,7 @@ public class ErroControllerAdvice {
     @ExceptionHandler({ MethodArgumentNotValidException.class,
             org.springframework.http.converter.HttpMessageNotReadableException.class,
             org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
-            IllegalArgumentException.class })
+            IllegalArgumentException.class, java.time.DateTimeException.class })
     ResponseEntity<?> validacao(Exception e) {
         return ResponseEntity.badRequest()
                 .body(Map.of("mensagem", "Confira os campos informados e os formatos de data e valor."));
